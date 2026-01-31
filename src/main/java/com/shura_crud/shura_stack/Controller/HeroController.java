@@ -23,15 +23,32 @@ public HeroController(HeroRepo heroRepo){
 
 @PostMapping("/addHero")
 
-    public Hero add_Hero(@RequestBody  Hero hero){
+    public ResponseEntity <Hero> add_Hero(@RequestBody  Hero hero){
 
-    return heroRepo.save(hero);
+    Hero savedHero = heroRepo.save(hero);
+
+    return ResponseEntity.ok(savedHero);
 }
 
 @GetMapping("/getAll")
 
     public List<Hero> fetchHeroes(){
     return heroRepo.findAll();
+}
+
+@PutMapping("/updateHero/{id}")
+
+public ResponseEntity <Hero> updateHero(@PathVariable Long id,   @RequestBody Hero updatedHero){
+
+    return heroRepo.findById(id)
+            .map(existingHero -> {
+                // Force ID from path (important)
+                updatedHero.setId(id);
+
+                Hero savedHero = heroRepo.save(updatedHero);
+                return ResponseEntity.ok(savedHero);
+            })
+            .orElseGet(() -> ResponseEntity.notFound().build());
 }
 
 @DeleteMapping("/delete/{id}")
